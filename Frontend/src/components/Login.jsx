@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Api from "./API";
+import toast from "react-hot-toast";
 
 function Login() {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-//   console.log("Form data:", formData);
- 
-  
+  //   console.log("Form data:", formData);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -16,7 +17,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      // Reset errors
+    // Reset errors
     setErrors({});
     if (!formData.email) {
       setErrors((prevErrors) => ({
@@ -32,18 +33,41 @@ function Login() {
       }));
       return;
     }
-    console.log("Form data:", formData);
+
+    try {
+      const res = await Api.login(formData.email, formData.password);
+      if (res.success === true) {
+        toast.success("Loggedin Successfully!");
+        document.getElementById("my_modal_3").close();
+        setTimeout(() => {
+          window.location.reload();
+          localStorage.setItem("Users", JSON.stringify(res.user));
+        }, 1000);
+      }
+    } catch (error) {
+      console.log("error:", error);
+      if (error.response) {
+        toast.error("Error: " + error.response.data.message);
+        setTimeout(() => {
+          
+        }, 2000);
+      }
+    }
   };
 
   return (
-    <div className="dark:bg-slate-900 dark:text-white">
+    <div className="">
       <dialog id="my_modal_3" className="modal">
-        <div className="modal-box">
+        <div className="modal-box dark:bg-slate-900 dark:text-white">
           <form onSubmit={handleSubmit} method="dialog">
-            <Link to="/" className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            <Link
+              to="/"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => document.getElementById("my_modal_3").close()}
+            >
               ✕
             </Link>
-            <h3 className="font-bold text-xl">Login</h3>
+            <h3 className="font-bold text-3xl">Login</h3>
             <div className="mt-4 space-y-2 text-xl">
               <span>Email</span>
               <br />
@@ -56,7 +80,9 @@ function Login() {
               />
               <br />
               {errors.emailRequired && (
-                <span className="text-sm text-red-500">This field is required</span>
+                <span className="text-sm text-red-500">
+                  This field is required
+                </span>
               )}
             </div>
 
@@ -72,17 +98,27 @@ function Login() {
               />
               <br />
               {errors.passwordRequired && (
-                <span className="text-sm text-red-500">This field is required</span>
+                <span className="text-sm text-red-500">
+                  This field is required
+                </span>
               )}
             </div>
 
             <div className="flex justify-around mt-4">
-              <button type="submit" className="text-xl bg-pink-500 text-white rounded-md px-3 py-1 hover:bg-pink-700 duration-200">
+              <button
+                type="submit"
+                className="text-xl bg-pink-500 text-white rounded-md px-3 py-1 hover:bg-pink-700 duration-200"
+              >
                 Login
               </button>
               <p className="text-xl">
                 Not registered?{" "}
-                <Link to="/signup" className="underline text-blue-500 cursor-pointer">Signup</Link>
+                <Link
+                  to="/signup"
+                  className="underline text-blue-500 cursor-pointer"
+                >
+                  Signup
+                </Link>
               </p>
             </div>
           </form>

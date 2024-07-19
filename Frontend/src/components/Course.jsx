@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Cards from './Cards';
-import list from '../../public/list.json';
+// import list from '../../public/list.json';
 import { Link } from 'react-router-dom';
+import Api from './API';
 
 export default function Course() {
+    const [book, setBook] = useState([]);
+
+    useEffect(() => {
+      const getBooks = async () => {
+        try {
+            const res = await Api.getAllBooks();
+            //  console.log(res.data);
+             setBook(res.data);
+        } catch (error) {
+            console.log(error);
+        }
+      }
+      getBooks();
+    }, []);
+
   return (
     <>
     <div className='max-w-screen-2xl container mx-auto md:px-20 px-4'>
@@ -14,7 +30,7 @@ export default function Course() {
         </div>
         <div className='grid grid-cols-1 md:grid-cols-4 mt-12'>
             {
-                list.map((item) => (
+                book.map((item) => (
                     <Cards item={item} key={item.id}/>
                 ))
             }
